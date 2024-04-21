@@ -3,36 +3,28 @@ import pytest
 
 
 @pytest.fixture(scope='function',
-                params=['mobile', 'desktop'])
+                params=[(375, 667), (1920, 1080)])
 def configure_browser(request):
-    browser.config.base_url = 'https://github.com'
-    if request.param == 'mobile':
-        return request.getfixturevalue('mobile_view_size')
-    elif request.param == 'desktop':
-        return request.getfixturevalue('desktop_view_size')
+    width, height = request.param
+    browser.config.window_width = width
+    browser.config.window_height = height
+
+    yield width
+
+    browser.quit()
 
 
 @pytest.fixture(scope='function')
-def mobile_view_size():
+def configure_browser_mobile():
     browser.config.window_width = 375
     browser.config.window_height = 667
-    return browser
+    yield
+    browser.quit()
 
 
 @pytest.fixture(scope='function')
-def desktop_view_size():
+def configure_browser_desktop():
     browser.config.window_width = 1920
     browser.config.window_height = 1080
-    return browser
-
-
-@pytest.fixture(scope='function')
-def configure_browser_desktop(desktop_view_size):
-    desktop_view_size.config.base_url = 'https://github.com'
-    return desktop_view_size
-
-
-@pytest.fixture(scope='function')
-def configure_browser_mobile(mobile_view_size):
-    mobile_view_size.config.base_url = 'https://github.com'
-    return mobile_view_size
+    yield
+    browser.quit()
